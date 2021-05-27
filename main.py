@@ -1,4 +1,4 @@
-from math import floor
+from math import exp, floor
 
 class no(object):
     def __init__(self, ordem) -> None:
@@ -7,15 +7,6 @@ class no(object):
         self.chave = []
         self.pai = None
         self.folha = self.isFolha()
-
-    
-    # def __str__(self) -> str:
-    #     chave = ' - '.join([chave for chave in self.chave])
-
-    #     if(self.isFolha()):
-    #         return f"Nó folha, chaves: {chave}"
-    #     else:
-    #         return f"Nó não folha, chaves: {chave}, tenho {len(self.filho)} filho(s)"
 
     """
         isFolha: Verifica se o nó é um nó folha ou não
@@ -57,6 +48,7 @@ class no(object):
     """ buscar: Busca o nó onde a chave se encontra a partir do no atual """
     def buscar(self, chave) -> tuple((object, int)) or None:
         i = 0
+
         #Percorremos todas as chaves do nó atual
         while (i < len(self.chave)):
             #caso tenhamos encontrado a chave atual, retornamos uma tupla com o nó atual e o índice encontrado
@@ -74,7 +66,7 @@ class no(object):
                 return self.filho[i].buscar(chave)
             
             i += 1
-        
+    
         #caso tenha sido percorrido todos as chaves, buscamos no último filho disponível
         #que está posterior à chave atual 
         self.filho[i].buscar(chave)
@@ -89,7 +81,7 @@ class no(object):
         posteriores = no(self.ordem)
         posteriores.chave = self.chave[middle:]
         posteriores.filho = self.filho[middle:]
-        for i in posteriores.filho:
+        for i in range(len(posteriores.filho)):
             posteriores.filho[i].pai = self #atualizamos os novos filhos, setando o pai como o nó atual
         
         #removemos o resto dos filhos e chaves da lista
@@ -98,7 +90,7 @@ class no(object):
 
         #adicionamos o novo nó nos filhos e removemos a última chave
         self.filho.append(posteriores)
-        self.chave.pop()
+        return self.chave.pop()
 
 class ArvoreB(object):
 
@@ -132,9 +124,9 @@ class ArvoreB(object):
             if(folha.pai != None):
                 folha = folha.pai
                 indice_adicao = folha.adicionaElemento(novo_no)
-                aux = folha.filho[:indice_adicao + 2]
+                aux = folha.filho[:indice_adicao + 1]
                 aux.append(filho_removido)
-                aux = folha.filho[indice_adicao + 2:]
+                aux.extend(folha.filho[indice_adicao + 1:])
                 folha.filho = aux
                 filho_removido.pai = folha
             else:
@@ -148,13 +140,38 @@ class ArvoreB(object):
 
         return folha
 
-def teste():
-    arvore = ArvoreB(3)
+def main():
 
-    arvore.insert(2)
-    arvore.insert(8)
-    arvore.insert(6)
-    arvore.insert(4)
-    arvore.insert(15)
+    ordem = 0
+    while(ordem < 3):
+        ordem = int(input("Qual a ordem da árvore desejada (mínimo 3)? "))    
+    
+    arvore = ArvoreB(ordem)
 
-teste()
+
+    while(True):
+        print("Escolha uma opcao do menu:")
+        menu_option = input("1 - Inserir chave (valor)\t2 - Buscar Nó\t3 - Sair\nAnswer: ")
+
+        if(menu_option == '1'):
+            arvore.insert(int(input("Informe o valor a ser inserido: ")))
+        
+        elif(menu_option == '2'):
+            chave = int(input("Informe a chave a ser buscada: "))
+            
+            try:
+                new_tuple = arvore.root.buscar(chave)
+
+                print(f"O elemento {chave} foi encontrado no nó cujo endereço de memória é: {new_tuple[0]} no índice: {new_tuple[1]}")
+
+            except Exception:
+                print("Esse elemento não existe na arvore!")
+
+
+        elif(menu_option == '3'):
+            exit(0)
+
+        else:
+            print("Opção inválida!")
+
+main()
